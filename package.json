@@ -1,0 +1,15 @@
+{
+  "name": "Playwright-govuk-e2e-suite",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {},
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6"
+  }
+}
