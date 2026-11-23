@@ -65,7 +65,7 @@ Playwright-govuk-e2e-suite/
 - **Automation:** GitHub Actions
 - **Report:** Playwright HTML report
 
-The current configuration runs the tests in Chromium and WebKit. Firefox is not enabled.
+The current configuration runs the tests in Chromium, Firefox and WebKit.
 
 ---
 
