@@ -2,34 +2,55 @@
 
 [![Playwright Tests](https://github.com/sumithpantam/Playwright-govuk-e2e-suite/actions/workflows/playwright.yml/badge.svg)](https://github.com/sumithpantam/Playwright-govuk-e2e-suite/actions/workflows/playwright.yml)
 
+This project uses Playwright and JavaScript to check the GOV.UK State Pension start page and its public Content API.
+
 ---
 
-## What This Project Covers
+## Tests and Skills Demonstrated
 
-### 1. End-to-End UI Testing
+The suite currently has five test cases across three test files. Playwright is configured to run them in Chromium, Firefox and WebKit.
 
-- Uses Playwright to check the GOV.UK State Pension start page.
-- Checks that the page heading and **Start now button** are visible.
-- Clicks the Start now button and checks that the browser moves to the next service page.
-- Keeps the page locators in `pages/PensionCheckPage.js` so the test is easier to read.
+### UI journey — `tests/ui-journey.spec.js`
 
-### 2. Accessibility Testing
+**Check the start page**
 
-- Uses `@axe-core/playwright` to scan the State Pension start page.
-- Checks for WCAG 2.0 and WCAG 2.1 Level A and AA issues reported by axe-core.
-- The test expects the scan to return no violations for this page.
+- Opens `/check-state-pension`.
+- Accepts the cookie prompt if it appears, then hides the confirmation message if shown.
+- Checks that the page heading and **Start now** button are visible.
+- Uses the `PensionCheckPage` page object and role-based locators for the heading and button.
 
-### 3. GOV.UK Content API Checks
+**Check Start now navigation**
 
-- Checks that the State Pension content endpoint returns the expected page details.
-- Checks that a request for a page that does not exist returns a `404` response.
+- Opens the same page and handles the cookie prompt.
+- Clicks the **Start now** button.
+- Checks that the browser reaches the HMRC service at `tax.service.gov.uk`.
 
-### 4. GitHub Actions
+These checks cover the journey from the GOV.UK start page to the service. They do not continue through sign-in or complete a State Pension application.
 
-- Runs the Playwright tests when changes are pushed or a pull request is opened for `main` or `master`.
-- Uploads the Playwright HTML report as a workflow artifact.
+### Accessibility — `tests/accessibility.spec.js`
 
-The tests cover the public start page and content API. They do not complete the State Pension application or submit personal information.
+- Scans the State Pension start page with `@axe-core/playwright`.
+- Runs axe-core rules tagged for WCAG 2.0 and 2.1 Level A and AA.
+- Prints violation details, including impact and affected page elements, if axe-core finds any.
+- Fails the test if the scan reports violations for the selected rules.
+
+This is an automated check of one page. It does not establish that the whole service conforms to WCAG.
+
+### Content API — `tests/api-validation.spec.js`
+
+**Check the State Pension content endpoint**
+
+- Sends a `GET` request to the Content API endpoint.
+- Checks for HTTP `200` and a JSON content type.
+- Checks that `base_path` and `document_type` have the expected values.
+- Checks that `title` is a non-empty string and includes the expected service title.
+
+The endpoint and expected values are kept in `test-data/contentApiTestData.js` and imported by the API test. This keeps the test steps separate from the values they check.
+
+**Check an unknown content path**
+
+- Sends a `GET` request to a path that does not exist.
+- Checks that the API returns HTTP `404`.
 
 ---
 
@@ -39,33 +60,34 @@ The tests cover the public start page and content API. They do not complete the 
 Playwright-govuk-e2e-suite/
 ├── .github/
 │   └── workflows/
-│       └── playwright.yml       # Runs the tests in GitHub Actions
+│       └── playwright.yml          # Runs the tests in GitHub Actions
 ├── pages/
-│   └── PensionCheckPage.js      # Page locators and actions
+│   └── PensionCheckPage.js         # Page locators and cookie actions
 ├── test-data/
-│   └── citizenData.js           # Test data used by the UI journey
+│   └── contentApiTestData.js       # API endpoints and expected values
 ├── tests/
-│   ├── ui-journey.spec.js       # State Pension start-page test
-│   ├── accessibility.spec.js    # Accessibility scan
-│   └── api-validation.spec.js   # Content API checks
+│   ├── ui-journey.spec.js          # Start page and Start now navigation
+│   ├── accessibility.spec.js       # axe-core scan of the start page
+│   └── api-validation.spec.js      # Content API response checks
 ├── .gitignore
 ├── package-lock.json
 ├── package.json
-└── playwright.config.js         # Test settings and browser projects
+└── playwright.config.js            # Browser projects and test settings
 ```
 
 ---
 
-## Tools Used
+## Tools and Test Settings
 
 - **Test framework:** Playwright Test
 - **Language:** JavaScript (Node.js)
 - **Accessibility checks:** `@axe-core/playwright`
 - **Page design:** Page Object Model
-- **Automation:** GitHub Actions
+- **Browsers:** Chromium, Firefox and WebKit
+- **CI:** GitHub Actions
 - **Report:** Playwright HTML report
 
-The current configuration runs the tests in Chromium, Firefox and WebKit.
+On CI, Playwright is configured for up to two retries and one worker. It captures screenshots and video on failure, and a trace on the first retry. The workflow uploads the HTML report as an artifact.
 
 ---
 
@@ -88,11 +110,11 @@ npx playwright install
 ### 3. Run the Tests
 
 ```bash
-# Run all tests
+# Run all tests in the configured browsers
 npx playwright test
 
 # Run one test file
-npx playwright test tests/accessibility.spec.js
+npx playwright test tests/api-validation.spec.js
 
 # Open Playwright's interactive test runner
 npx playwright test --ui
@@ -102,4 +124,3 @@ npx playwright show-report
 ```
 
 There are no test commands defined in `package.json`, so the tests are run with `npx playwright`.
-
