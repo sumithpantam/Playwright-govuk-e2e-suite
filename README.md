@@ -1,6 +1,6 @@
 # Playwright Public Digital Service E2E & Accessibility Suite
 
-
+[![Playwright Tests](https://github.com/sumithpantam/Playwright-govuk-e2e-suite/actions/workflows/playwright.yml/badge.svg)](https://github.com/sumithpantam/Playwright-govuk-e2e-suite/actions/workflows/playwright.yml)
 
 ---
 
